@@ -32,7 +32,7 @@ python manage.py createsuperuser
 # Login to admin
 http://localhost:8000/admin/
 
-# Create a new brand
+# Create a new brand in the admin
 For my case I used Apple as the brand name
 and used amazon.com as the url
 base_url = "https://www.amazon.co.uk"

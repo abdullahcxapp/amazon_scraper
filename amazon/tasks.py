@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from celery import shared_task
 from requests.exceptions import RequestException
 
-from amazon.models import Product
+from amazon.models import Product, Brand
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,8 @@ class AmazonAppleScraper:
                 product_url = f'{self.base_url}{link}'
 
                 try:
-                    product_details = self.scrape_product_details(product_url)
+                    brand, created = Brand.objects.get_or_create(name='Apple')
+                    product_details = self.scrape_product_details(product_url, brand)
                     if product_details:
                         self.products.append(product_details)
                 except Exception as e:
@@ -45,7 +46,7 @@ class AmazonAppleScraper:
 
         return self.products
 
-    def scrape_product_details(self, product_url):
+    def scrape_product_details(self, product_url, brand):
         try:
             response = requests.get(product_url)
             response.raise_for_status()
@@ -65,6 +66,7 @@ class AmazonAppleScraper:
         if product_data['name'] and product_data['asin']:
             try:
                 Product.objects.get_or_create(
+                    brand=brand,
                     name=product_data['name'],
                     asin=product_data['asin'],
                     defaults=product_data
